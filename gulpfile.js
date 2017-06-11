@@ -46,7 +46,16 @@ gulp.task('wiredep', function() {
         .pipe(wiredep(options))
         .pipe($.inject(gulp.src(config.js)))
         .pipe(gulp.dest(config.client));
-})
+});
+
+gulp.task('inject', ['wiredep', 'styles'], function() {
+    log('Wire up the app css into the html, and call wiredep');
+
+    return gulp
+        .src(config.index)
+        .pipe($.inject(gulp.src(config.css)))
+        .pipe(gulp.dest(config.client));
+});
 
 /////////////////////////
 function errorLogger(error) {
