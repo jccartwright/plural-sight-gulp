@@ -37,6 +37,7 @@ gulp.task('less-watcher', function() {
     gulp.watch([config.less], ['styles']);
 });
 
+//called by bower postinstall so needs to be fast
 gulp.task('wiredep', function() {
     log('Wire up the bower css js and our app js into the html');
     var options = config.getWiredepDefaultOptions();
