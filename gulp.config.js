@@ -47,7 +47,7 @@ module.exports = function() {
             ignorePath: config.bower.ignorePath
         };
         return options;
-    }
+    };
 
     return config;
 };

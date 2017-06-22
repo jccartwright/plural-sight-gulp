@@ -42,7 +42,7 @@ gulp.task('less-watcher', function() {
 gulp.task('wiredep', function() {
     log('Wire up the bower css js and our app js into the html');
     var options = config.getWiredepDefaultOptions();
-    var wiredep = require('wiredep').stream
+    var wiredep = require('wiredep').stream;
     return gulp
         .src(config.index)
         .pipe(wiredep(options))
@@ -72,7 +72,21 @@ gulp.task('serve-dev', ['inject'], function() {
         watch: [config.server]
     };
 
-    return $.nodemon(nodeOptions);
+    return $.nodemon(nodeOptions)
+        .on('restart', ['vet'], function(evt){
+            log('*** nodemon restarted');
+            log('files changed on restart:\n' + evt);
+        })
+        .on('start', function(evt){
+            log('*** nodemon started');
+        })
+        .on('crash', function(evt){
+            log('*** nodemon crashed: script crashed for some reason');
+        })
+        .on('exit', function(evt){
+            log('*** nodemon exited cleanly');
+        });
+        
 });
 /////////////////////////
 function errorLogger(error) {
