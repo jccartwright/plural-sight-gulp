@@ -23,7 +23,8 @@ module.exports = function() {
 
         less: client + 'styles/styles.less',
         server: server,
-        temp: temp, 
+        temp: temp,
+        browserReloadDelay: 1000,
         /**
          * Bower and NPM locations
          */

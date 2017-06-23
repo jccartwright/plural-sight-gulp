@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var args = require('yargs').argv;
+var browserSync = require('browser-sync');
 var config = require('./gulp.config')();
 var del = require('del');
 var $ = require('gulp-load-plugins')({lazy: true});
@@ -73,12 +74,17 @@ gulp.task('serve-dev', ['inject'], function() {
     };
 
     return $.nodemon(nodeOptions)
-        .on('restart', ['vet'], function(evt){
+        .on('restart', function(evt){
             log('*** nodemon restarted');
             log('files changed on restart:\n' + evt);
+            setTimeout(function() {
+                browserSync.notify('reloading now...');
+                browserSync.reload({stream: false});
+            }, config.browserReloadDelay);
         })
         .on('start', function(evt){
             log('*** nodemon started');
+            startBrowserSync();
         })
         .on('crash', function(evt){
             log('*** nodemon crashed: script crashed for some reason');
@@ -89,6 +95,47 @@ gulp.task('serve-dev', ['inject'], function() {
         
 });
 /////////////////////////
+function changeEvent(event) {
+    var srcPattern = new RegExp('/.*(?=/' + config.source + ')/');
+    log('File ' + event.path.replace(srcPattern, '') + ' ' + event.type);
+}
+
+
+function startBrowserSync() {
+    if (args.nosync || browserSync.active) {
+        return;
+    }
+    log('Starting browser-sync on port ' + port );
+
+    gulp.watch([config.less], ['styles'])
+        .on('change', function(event) { changeEvent(event)})
+
+    var options = {
+        proxy: 'localhost:' + port,
+        port: 3000,
+        files: [
+            config.client + '**/*.*',
+            '!' + config.less,
+            config.temp + '**/*.css'
+        ],
+        ghostMode: {
+            clicks: true,
+            location: false,
+            forms: true,
+            scroll: true
+        },
+        injectChanges: true,
+        logFileChanges: true,
+        logLevel: 'debug',
+        logPrefix: 'gulp-patterns',
+        notify: true,
+        reloadDelay: 1000
+    };
+
+    browserSync(options);
+};
+
+
 function errorLogger(error) {
     log('*** Start of Error ***');
     log(error);
