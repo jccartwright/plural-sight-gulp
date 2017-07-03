@@ -6,6 +6,8 @@ var del = require('del');
 var $ = require('gulp-load-plugins')({lazy: true});
 var port = process.env.PORT || config.defaultPort;
 
+gulp.task('help', $.taskListing);
+gulp.task('default', ['help']);
 
 gulp.task('vet', function() {
     log('Analyzing source with JSHint and JSCS...');
@@ -29,11 +31,45 @@ gulp.task('styles', ['clean-styles'], function() {
         .pipe(gulp.dest(config.temp));
 });
 
+gulp.task('fonts', ['clean-fonts'], function() {
+    log('Copying fonts...');
+
+    return gulp
+        .src(config.fonts)
+        .pipe(gulp.dest(config.build + 'fonts'));
+});
+
+
+gulp.task('images', ['clean-images'], function() {
+    log('Copying and compressing the images...');
+
+    return gulp
+        .src(config.images)
+        .pipe($.imagemin({optimizationLevel: 4}))
+        .pipe(gulp.dest(config.build + 'images'));
+});
+
+gulp.task('clean', function() {
+    var delconfig = [].concat(config.build, config.temp);
+    log('Cleaning: ' + $.util.colors.blue(delconfig));
+    del(delconfig);
+});
+
+
+gulp.task('clean-fonts', function() {
+    return clean(config.build + 'fonts/**/*.*');
+});
+
+
+gulp.task('clean-images', function() {
+    return clean(config.build + 'images/**/*.*');
+});
+
 //not returning stream but a promise from del
 gulp.task('clean-styles', function() {
-    var files = config.temp + '**/*.css';
-    return clean(files);
+    return clean(config.temp + '**/*.css');
 });
+
 
 gulp.task('less-watcher', function() {
     gulp.watch([config.less], ['styles']);
