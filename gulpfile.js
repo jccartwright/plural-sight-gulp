@@ -128,6 +128,7 @@ gulp.task('optimize', ['inject'], function(){
     var cssFilter = $.filter('**/*.css', { restore: true });
     var jsLibFilter = $.filter('**/' + config.optimized.lib, { restore: true });
     var jsAppFilter = $.filter('**/' + config.optimized.app, { restore: true });
+    var notIndexFilter = $.filter(['**/*', '!**/index.html'], { restore: true });
 
     //note change to to v3 of gulp-useref
     return gulp
@@ -147,6 +148,11 @@ gulp.task('optimize', ['inject'], function(){
         .pipe($.ngAnnotate())
         .pipe($.uglify())
         .pipe(jsAppFilter.restore)
+        .pipe(notIndexFilter)
+        .pipe($.rev())
+        .pipe(notIndexFilter.restore)
+        .pipe($.revReplace())
+        .pipe($.rev.manifest())
         .pipe(gulp.dest(config.build));
 });
 
